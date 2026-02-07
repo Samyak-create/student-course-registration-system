@@ -107,5 +107,51 @@ namespace StudentCourseRegistrationSystem.Controllers
 
             return Ok(students);
         }
+
+        // PUT: api/Courses/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateCourse(int id, CourseUpdateDto courseDto)
+        {
+            var course = await _context.Courses.FindAsync(id);
+
+            if (course == null)
+            {
+                return NotFound();
+            }
+            
+            // Validate Instructor Exists
+            var instructor = await _context.Instructors.FindAsync(courseDto.InstructorId);
+            if (instructor == null)
+            {
+                 return BadRequest("Invalid Instructor ID");
+            }
+
+            course.Title = courseDto.Title;
+            course.Credits = courseDto.Credits;
+            course.InstructorId = courseDto.InstructorId;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!CourseExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        private bool CourseExists(int id)
+        {
+            return _context.Courses.Any(e => e.Id == id);
+        }
     }
 }

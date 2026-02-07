@@ -50,5 +50,43 @@ namespace StudentCourseRegistrationSystem.Controllers
 
             return CreatedAtAction(nameof(GetInstructors), new { id = instructor.Id }, instructorDto);
         }
+
+        // PUT: api/Instructors/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateInstructor(int id, InstructorUpdateDto instructorDto)
+        {
+            var instructor = await _context.Instructors.FindAsync(id);
+
+            if (instructor == null)
+            {
+                return NotFound();
+            }
+
+            instructor.Name = instructorDto.Name;
+            instructor.Department = instructorDto.Department;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!InstructorExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        private bool InstructorExists(int id)
+        {
+            return _context.Instructors.Any(e => e.Id == id);
+        }
     }
 }

@@ -103,5 +103,43 @@ namespace StudentCourseRegistrationSystem.Controllers
 
             return CreatedAtAction(nameof(GetStudent), new { id = student.Id }, readDto);
         }
+
+        // PUT: api/Students/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateStudent(int id, StudentUpdateDto studentDto)
+        {
+            var student = await _context.Students.FindAsync(id);
+
+            if (student == null)
+            {
+                return NotFound();
+            }
+
+            student.Name = studentDto.Name;
+            student.Email = studentDto.Email;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!StudentExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        private bool StudentExists(int id)
+        {
+            return _context.Students.Any(e => e.Id == id);
+        }
     }
 }
