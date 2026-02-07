@@ -12,3 +12,7 @@ appsettings.Production.json
 # IDE
 .vs/
 .idea/
+
+
+build.log
+build_error.log
